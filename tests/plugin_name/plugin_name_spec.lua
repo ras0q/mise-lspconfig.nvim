@@ -1,4 +1,4 @@
-local plugin = require("plugin_name")
+local plugin = require("plugin.mise-lspconfig")
 
 describe("setup", function()
   it("works with default", function()
