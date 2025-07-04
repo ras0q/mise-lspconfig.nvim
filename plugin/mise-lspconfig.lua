@@ -1,7 +1,7 @@
-if vim.g.loaded_mise_lsp then
+if vim.g.loaded_mise_lspconfig then
   return
 end
-vim.g.loaded_mise_lsp = true
+vim.g.loaded_mise_lspconfig = true
 
 local ml = require("mise-lspconfig")
 
