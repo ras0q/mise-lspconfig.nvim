@@ -1,10 +1,24 @@
-local M = {}
+---@class MiseConfigArgs
+---@field global table
+---@field use table
+---@field which table
+
+---@class MLCMiseModule
+---@field cmd string Path to mise executable
+---@field args MiseConfigArgs
+local M = {
+  cmd = "mise",
+  args = {
+    global = {},
+    use = {},
+    which = {},
+  },
+}
 
 --- Checks if mise is available on the system.
---- @param mise_cmd string mise command path
 --- @return boolean available
-function M.check_available(mise_cmd)
-  local result = vim.fn.executable(mise_cmd)
+function M.check_available()
+  local result = vim.fn.executable(M.cmd)
   return result == 1
 end
 
@@ -51,19 +65,20 @@ end
 
 --- Install a tool using mise.
 --- @param tool_name string package name
---- @param mise_cmd string mise command path
---- @param mise_args string[] additional mise arguments
 --- @return boolean success
-function M.install_tool(tool_name, mise_cmd, mise_args)
+function M.install_tool(tool_name)
   vim.notify("[mise-lspconfig] Installing " .. tool_name .. " with mise...")
 
   local args = { "use" }
-  for _, arg in ipairs(mise_args) do
+  for _, arg in ipairs(M.args.global) do
+    table.insert(args, arg)
+  end
+  for _, arg in ipairs(M.args.use) do
     table.insert(args, arg)
   end
   table.insert(args, tool_name)
 
-  local output = M.execute_command(mise_cmd, args)
+  local output = M.execute_command(M.cmd, args)
   if output then
     vim.notify("[mise-lspconfig] " .. tool_name .. " installed successfully")
     return true
@@ -73,19 +88,20 @@ function M.install_tool(tool_name, mise_cmd, mise_args)
   end
 end
 
----
 --- Checks if a tool's binary is installed (either on $PATH or using mise's resolution).
 --- @param tool_name string The tool's binary name
---- @param mise_cmd string mise command path
---- @param mise_args string[] Additional mise arguments (unused for now, future-proof)
 --- @return boolean installed
-function M.is_tool_installed(tool_name, mise_cmd, mise_args)
-  local args = { "which", tool_name }
-  for _, arg in ipairs(mise_args) do
+function M.is_tool_installed(tool_name)
+  local args = { "which" }
+  for _, arg in ipairs(M.args.global) do
     table.insert(args, arg)
   end
+  for _, arg in ipairs(M.args.which) do
+    table.insert(args, arg)
+  end
+  table.insert(args, tool_name)
 
-  local tool_path = M.execute_command(mise_cmd, args)
+  local tool_path = M.execute_command(M.cmd, args)
   if tool_path ~= nil then
     return true
   end

@@ -3,6 +3,7 @@ if vim.g.loaded_mise_lspconfig then
 end
 vim.g.loaded_mise_lspconfig = true
 
+---@class MLCModule
 local ml = require("mise-lspconfig")
 
 vim.api.nvim_create_user_command("MiseInstallLsp", function(opts)
@@ -12,13 +13,13 @@ vim.api.nvim_create_user_command("MiseInstallLsp", function(opts)
     return
   end
 
-  local cmds = ml.get_required_cmds(lsp_name)
+  local cmds = ml.opts.lspconfig.get_required_cmds(lsp_name)
   for _, cmd in ipairs(cmds) do
     -- TODO: convert to a correct tool name
     local tool = cmd
 
-    if not ml.is_tool_installed(tool) then
-      ml.install_tool(tool)
+    if not ml.opts.mise.is_tool_installed(tool) then
+      ml.opts.mise.install_tool(tool)
     end
   end
 end, {
