@@ -13,14 +13,16 @@ vim.api.nvim_create_user_command("MiseInstallLsp", function(opts)
     return
   end
 
-  local cmds = ml.opts.lspconfig.get_required_cmds(lsp_name)
-  for _, cmd in ipairs(cmds) do
-    -- TODO: convert to a correct tool name
-    local tool = cmd
+  local cmd = ml.opts.lspconfig.get_required_cmd(lsp_name)
+  if not cmd then
+    vim.notify("[mise-lspconfig] Cannot find any tools required by " .. lsp_name, "error")
+    return
+  end
+  -- TODO: convert to a correct tool name
+  local tool = cmd
 
-    if not ml.opts.mise.is_tool_installed(tool) then
-      ml.opts.mise.install_tool(tool)
-    end
+  if not ml.opts.mise.is_tool_installed(tool) then
+    ml.opts.mise.install_tool(tool)
   end
 end, {
   nargs = 1,

@@ -8,15 +8,19 @@ local M = {
   },
 }
 
---- Returns a list of required cmd binaries for a given LSP name (from lspconfig).
+--- Returns a required cmd binary for a given LSP name (from lspconfig).
 --- @param lsp_name string
---- @return string[] cmds
-function M.get_required_cmds(lsp_name)
-  local cmds = lspconfig[lsp_name].document_config.default_config.cmd or {}
-  return cmds
-  -- local info = ml_lspconfig.get_server_info(lsp_name)
-  -- if not info or not info.cmd then return {} end
-  -- return info.cmd
+--- @return string|nil cmd
+function M.get_required_cmd(lsp_name)
+  local server = lspconfig[lsp_name]
+  if not (server and server.document_config and server.document_config.default_config) then
+    return nil
+  end
+  local cmd = server.document_config.default_config.cmd
+  if not cmd or not cmd[1] then
+    return nil
+  end
+  return cmd[1]
 end
 
 --- @class MLCServerInfo
