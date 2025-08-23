@@ -63,10 +63,28 @@ function M.execute_command(mise_cmd, args)
   return table.concat(result_tbl or {}, "\n")
 end
 
+-- Install mason.nvim backend for mise
+function M.install_mason_backend()
+  local args = {
+    "plugin", "install", "mason", "https://github.com/ras0q/mise-backend-mason",
+  }
+
+  local output = M.execute_command(M.cmd, args)
+  if output then
+    vim.notify("[mise-lspconfig] mason registry backend plugin installed successfully")
+    return true
+  else
+    vim.notify("[mise-lspconfig] Failed to install mason registry backend plugin", "error")
+    return false
+  end
+end
+
 --- Install a tool using mise.
 --- @param tool_name string package name
 --- @return boolean success
 function M.install_tool(tool_name)
+  M.install_mason_backend()
+
   vim.notify("[mise-lspconfig] Installing " .. tool_name .. " with mise...")
 
   local args = { "use" }
@@ -76,14 +94,14 @@ function M.install_tool(tool_name)
   for _, arg in ipairs(M.args.use) do
     table.insert(args, arg)
   end
-  table.insert(args, tool_name)
+  table.insert(args, "mason:" .. tool_name)
 
   local output = M.execute_command(M.cmd, args)
   if output then
     vim.notify("[mise-lspconfig] " .. tool_name .. " installed successfully")
     return true
   else
-    vim.notify("[mise-lspconfig] Failed to install " .. tool_name)
+    vim.notify("[mise-lspconfig] Failed to install " .. tool_name, "error")
     return false
   end
 end
@@ -99,7 +117,7 @@ function M.is_tool_installed(tool_name)
   for _, arg in ipairs(M.args.which) do
     table.insert(args, arg)
   end
-  table.insert(args, tool_name)
+  table.insert(args, "mason:" .. tool_name)
 
   local tool_path = M.execute_command(M.cmd, args)
   if tool_path ~= nil then
@@ -107,7 +125,7 @@ function M.is_tool_installed(tool_name)
   end
 
   if vim.fn.executable(tool_name) == 1 then
-    vim.notify("[mise-lspconfig] Tool is installed, but not by mise.")
+    vim.notify("[mise-lspconfig] Tool is installed, but not by mise.", "warn")
     return true
   end
 
