@@ -6,7 +6,7 @@ local M = {
   opts = {
     mise = {},
     lspconfig = {},
-  }
+  },
 }
 
 --- @param opts MLCOpts

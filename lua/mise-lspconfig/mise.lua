@@ -28,7 +28,7 @@ end
 --- @return string|nil output
 function M.execute_command(mise_cmd, args)
   -- Ensure "mise_cmd" and all args are string and safe
-  if type(mise_cmd) ~= 'string' or #mise_cmd == 0 then
+  if type(mise_cmd) ~= "string" or #mise_cmd == 0 then
     vim.notify("[mise-lspconfig] Invalid mise command")
     return nil
   end
@@ -36,7 +36,7 @@ function M.execute_command(mise_cmd, args)
   local safe_args = {}
   for _, arg in ipairs(args) do
     -- Only accept string arg and escape embedded quotes
-    if type(arg) == 'string' then
+    if type(arg) == "string" then
       safe_args[#safe_args + 1] = arg:gsub('"', '\\"')
     end
   end
@@ -46,13 +46,13 @@ function M.execute_command(mise_cmd, args)
   vim.notify(("[mise-lspconfig] Executing `%s`"):format(table.concat(full_args, " ")))
 
   local result_tbl = nil
-  local Job = require('plenary.job')
+  local Job = require("plenary.job")
   local result, code = Job:new({
     command = mise_cmd,
     args = safe_args,
     on_exit = function(j)
       result_tbl = j:result()
-    end
+    end,
   }):sync()
 
   if result == nil or code ~= 0 then
