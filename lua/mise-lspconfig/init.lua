@@ -1,32 +1,27 @@
----@alias MLCOpts table
-
--- Refer to the respective subdirectories for the default settings.
 ---@class MLCModule
----@field opts MLCOpts
-local M = {
-  opts = {
-    commands = {},
-    mise = {},
-    lspconfig = {},
-  },
-}
+local M = {}
+
+-- Refer to the respective subdirectories for the default options.
+---@class MLCOpts
+---@field commands MLCCommandsModule
+---@field mise MLCMiseModule
+---@field lspconfig MLCLspConfigModule
 
 --- @param opts MLCOpts
 function M.setup(opts)
-  ---@type MLCCommandsModule
-  M.opts.commands = require("mise-lspconfig.commands")
-
-  ---@type MLCMiseModule
-  M.opts.mise = require("mise-lspconfig.mise")
-
-  ---@type MLCLspConfigModule
-  M.opts.lspconfig = require("mise-lspconfig.lspconfig")
-
-  opts = opts or {}
-  M.opts = vim.tbl_deep_extend("force", M.opts, opts)
+  ---@type MLCOpts
+  local default_opts = {
+    commands = require("mise-lspconfig.commands"),
+    lspconfig = require("mise-lspconfig.lspconfig"),
+    mise = require("mise-lspconfig.mise"),
+  }
+  M.opts = vim.tbl_deep_extend("force", default_opts, opts or {})
 
   if not M.opts.mise.check_available() then
-    vim.notify("[mise-lspconfig] mise executable not found. Please install mise or set the correct path in config.")
+    vim.notify(
+      "[mise-lspconfig] mise executable not found. Please install mise or set the correct path in config.",
+      "error"
+    )
     return
   end
 
