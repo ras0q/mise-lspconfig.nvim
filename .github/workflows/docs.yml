@@ -8,18 +8,22 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: panvimdoc
-        uses: kdheepak/panvimdoc@main
+      - uses: actions/checkout@v4
+      - uses: kdheepak/panvimdoc@v4.0.1
         with:
           vimdoc: my-template-docs
-          version: "Neovim >= 0.8.0"
+          version: "Neovim >= 0.11.0"
           demojify: true
           treesitter: true
       - name: Push changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "auto-generate vimdoc"
-          commit_user_name: "github-actions[bot]"
-          commit_user_email: "github-actions[bot]@users.noreply.github.com"
-          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-generate vimdoc" --author "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+            git push
+          fi
+
