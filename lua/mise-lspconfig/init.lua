@@ -29,6 +29,8 @@ function M.setup(opts)
     vim.notify("[mise-lspconfig] mise executable not found. Please install mise or set the correct path in config.")
     return
   end
+
+  M.opts.commands.register_commands(M.opts.mise, M.opts.lspconfig)
 end
 
 return M
