@@ -1,8 +1,12 @@
+name: docs
+
 on:
   push:
     branches:
       - main
-name: docs
+
+permissions:
+  contents: write
 
 jobs:
   docs:
