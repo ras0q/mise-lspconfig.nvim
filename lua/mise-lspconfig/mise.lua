@@ -17,8 +17,8 @@ local M = {
 
 --- Checks if mise is available on the system.
 --- @return boolean available
-function M.check_available()
-  local result = vim.fn.executable(M.cmd)
+function M:check_available()
+  local result = vim.fn.executable(self.cmd)
   return result == 1
 end
 
@@ -26,7 +26,7 @@ end
 --- @param mise_cmd string mise command path
 --- @param args string[] list of arguments (excluding mise_cmd)
 --- @return string|nil output
-function M.execute_command(mise_cmd, args)
+function M:execute_command(mise_cmd, args)
   -- Ensure "mise_cmd" and all args are string and safe
   if type(mise_cmd) ~= "string" or #mise_cmd == 0 then
     vim.notify("[mise-lspconfig] Invalid mise command")
@@ -63,7 +63,7 @@ function M.execute_command(mise_cmd, args)
 end
 
 -- Install mason.nvim backend for mise
-function M.install_mason_backend()
+function M:install_mason_backend()
   local args = {
     "plugin",
     "install",
@@ -71,7 +71,7 @@ function M.install_mason_backend()
     "https://github.com/ras0q/mise-backend-mason",
   }
 
-  local output = M.execute_command(M.cmd, args)
+  local output = self:execute_command(self.cmd, args)
   if output then
     vim.notify("[mise-lspconfig] mason registry backend plugin installed successfully")
     return true
@@ -84,8 +84,8 @@ end
 --- Install a tool using mise.
 --- @param tool_name string package name
 --- @return boolean success
-function M.install_tool(tool_name)
-  M.install_mason_backend()
+function M:install_tool(tool_name)
+  self:install_mason_backend()
 
   vim.notify("[mise-lspconfig] Installing " .. tool_name .. " with mise...")
 
@@ -98,7 +98,7 @@ function M.install_tool(tool_name)
   end
   table.insert(args, "mason:" .. tool_name)
 
-  local output = M.execute_command(M.cmd, args)
+  local output = self:execute_command(self.cmd, args)
   if output then
     vim.notify("[mise-lspconfig] " .. tool_name .. " installed successfully")
     return true
@@ -111,7 +111,7 @@ end
 --- Checks if a tool's binary is installed (either on $PATH or using mise's resolution).
 --- @param tool_name string The tool's binary name
 --- @return boolean installed
-function M.is_tool_installed(tool_name)
+function M:is_tool_installed(tool_name)
   local args = { "which" }
   for _, arg in ipairs(M.args.global) do
     table.insert(args, arg)
@@ -121,7 +121,7 @@ function M.is_tool_installed(tool_name)
   end
   table.insert(args, "mason:" .. tool_name)
 
-  local tool_path = M.execute_command(M.cmd, args)
+  local tool_path = self:execute_command(self.cmd, args)
   if tool_path ~= nil then
     return true
   end

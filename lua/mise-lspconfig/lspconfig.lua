@@ -11,7 +11,7 @@ local M = {
 --- Returns a required cmd binary for a given LSP name (from lspconfig).
 --- @param lsp_name string
 --- @return string|nil cmd
-function M.get_required_cmd(lsp_name)
+function M:get_required_cmd(lsp_name)
   local server = lspconfig[lsp_name]
   if not (server and server.document_config and server.document_config.default_config) then
     return nil
@@ -30,7 +30,7 @@ end
 --- Returns server info table for the given server, or nil.
 --- @param server_name string
 --- @return MLCServerInfo | nil
-function M.get_server_info(server_name)
+function M:get_server_info(server_name)
   local server = lspconfig[server_name]
   if server and server.document_config and server.document_config.default_config then
     local default_config = server.document_config.default_config
