@@ -41,7 +41,6 @@ function M.execute_command(mise_cmd, args)
     end
   end
 
-
   local full_args = vim.iter({ mise_cmd, safe_args }):flatten():totable()
   vim.notify(("[mise-lspconfig] Executing `%s`"):format(table.concat(full_args, " ")))
 
@@ -66,7 +65,10 @@ end
 -- Install mason.nvim backend for mise
 function M.install_mason_backend()
   local args = {
-    "plugin", "install", "mason", "https://github.com/ras0q/mise-backend-mason",
+    "plugin",
+    "install",
+    "mason",
+    "https://github.com/ras0q/mise-backend-mason",
   }
 
   local output = M.execute_command(M.cmd, args)
