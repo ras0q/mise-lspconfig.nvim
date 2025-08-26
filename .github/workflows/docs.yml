@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: kdheepak/panvimdoc@v4.0.1
         with:
-          vimdoc: my-template-docs
+          vimdoc: mise-lspconfig
           version: "Neovim >= 0.11.0"
           demojify: true
           treesitter: true
