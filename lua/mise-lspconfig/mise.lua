@@ -1,8 +1,3 @@
----@class MiseConfigArgs
----@field global table
----@field use table
----@field which table
-
 ---@class MLCMiseModule
 ---@field cmd string Path to mise executable
 ---@field args MiseConfigArgs
@@ -14,6 +9,11 @@ local M = {
     which = {},
   },
 }
+
+---@class MiseConfigArgs
+---@field global table
+---@field use table
+---@field which table
 
 --- Checks if mise is available on the system.
 --- @return boolean available

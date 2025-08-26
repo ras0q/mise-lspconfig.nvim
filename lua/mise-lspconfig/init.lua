@@ -1,9 +1,11 @@
 ---@alias MLCOpts table
 
+-- Refer to the respective subdirectories for the default settings.
 ---@class MLCModule
 ---@field opts MLCOpts
 local M = {
   opts = {
+    commands = {},
     mise = {},
     lspconfig = {},
   },
@@ -11,6 +13,9 @@ local M = {
 
 --- @param opts MLCOpts
 function M.setup(opts)
+  ---@type MLCCommandsModule
+  M.opts.commands = require("mise-lspconfig.commands")
+
   ---@type MLCMiseModule
   M.opts.mise = require("mise-lspconfig.mise")
 

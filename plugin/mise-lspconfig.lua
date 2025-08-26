@@ -8,7 +8,7 @@ vim.g.mise_lspconfig_is_installing = false
 ---@class MLCModule
 local ml = require("mise-lspconfig")
 
-vim.api.nvim_create_user_command("MiseInstallLsp", function(opts)
+vim.api.nvim_create_user_command(ml.opts.commands.install.name, function(opts)
   if vim.g.mise_lspconfig_is_installing then
     return
   end
