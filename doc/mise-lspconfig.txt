@@ -1,4 +1,4 @@
-*mise-lspconfig.txt*      For Neovim >= 0.11.0     Last change: 2025 August 26
+*mise-lspconfig.txt*      For Neovim >= 0.11.0     Last change: 2025 August 27
 
 ==============================================================================
 Table of Contents                           *mise-lspconfig-table-of-contents*
