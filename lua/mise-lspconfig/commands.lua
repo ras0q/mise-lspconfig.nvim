@@ -17,8 +17,6 @@ local is_installing = false
 --- @param mise_opts MLCMiseModule
 --- @param lspconfig_opts MLCLspConfigModule
 function M:register_commands(mise_opts, lspconfig_opts)
-  vim.print(self, mise_opts, lspconfig_opts)
-
   vim.api.nvim_create_user_command(self.install.name, function(opts)
     if is_installing then
       return

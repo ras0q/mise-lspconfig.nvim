@@ -17,8 +17,6 @@ function M.setup(opts)
   }
   M.opts = vim.tbl_deep_extend("force", default_opts, opts or {})
 
-  vim.print(M.opts)
-
   if not M.opts.mise:check_available() then
     vim.notify(
       "[mise-lspconfig] mise executable not found. Please install mise or set the correct path in config.",
