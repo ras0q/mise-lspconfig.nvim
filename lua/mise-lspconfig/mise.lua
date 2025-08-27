@@ -83,12 +83,8 @@ function M:install_tool(tool_name)
   vim.notify("[mise-lspconfig] Installing " .. tool_name .. " with mise...")
 
   local args = { "use" }
-  for _, arg in ipairs(M.args.global) do
-    table.insert(args, arg)
-  end
-  for _, arg in ipairs(M.args.use) do
-    table.insert(args, arg)
-  end
+  vim.list_extend(args, self.args.global)
+  vim.list_extend(args, self.args.use)
   table.insert(args, "mason:" .. tool_name)
 
   local output = self:execute_command(args)
@@ -106,12 +102,8 @@ end
 --- @return boolean installed
 function M:is_tool_installed(tool_name)
   local args = { "which" }
-  for _, arg in ipairs(M.args.global) do
-    table.insert(args, arg)
-  end
-  for _, arg in ipairs(M.args.which) do
-    table.insert(args, arg)
-  end
+  vim.list_extend(args, self.args.global)
+  vim.list_extend(args, self.args.which)
   table.insert(args, "mason:" .. tool_name)
 
   local tool_path = self:execute_command(args)
