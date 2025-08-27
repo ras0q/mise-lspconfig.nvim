@@ -23,16 +23,9 @@ function M:check_available()
 end
 
 --- Execute a mise command and return the output (synchronously).
---- @param mise_cmd string mise command path
 --- @param args string[] list of arguments (excluding mise_cmd)
 --- @return string|nil output
-function M:execute_command(mise_cmd, args)
-  -- Ensure "mise_cmd" and all args are string and safe
-  if type(mise_cmd) ~= "string" or #mise_cmd == 0 then
-    vim.notify("[mise-lspconfig] Invalid mise command")
-    return nil
-  end
-
+function M:execute_command(args)
   local safe_args = {}
   for _, arg in ipairs(args) do
     -- Only accept string arg and escape embedded quotes
@@ -41,13 +34,13 @@ function M:execute_command(mise_cmd, args)
     end
   end
 
-  local full_args = vim.iter({ mise_cmd, safe_args }):flatten():totable()
-  vim.notify(("[mise-lspconfig] Executing `%s`"):format(table.concat(full_args, " ")))
+  local full_args = vim.iter({ self.cmd, safe_args }):flatten():totable()
+  vim.notify(("[mise-lspconfig] Executing `%s`"):format(table.concat(full_args, " ")), "debug")
 
   local result_tbl = nil
   local Job = require("plenary.job")
   local result, code = Job:new({
-    command = mise_cmd,
+    command = self.cmd,
     args = safe_args,
     on_exit = function(j)
       result_tbl = j:result()
@@ -71,7 +64,7 @@ function M:install_mason_backend()
     "https://github.com/ras0q/mise-backend-mason",
   }
 
-  local output = self:execute_command(self.cmd, args)
+  local output = self:execute_command(args)
   if output then
     vim.notify("[mise-lspconfig] mason registry backend plugin installed successfully")
     return true
@@ -98,7 +91,7 @@ function M:install_tool(tool_name)
   end
   table.insert(args, "mason:" .. tool_name)
 
-  local output = self:execute_command(self.cmd, args)
+  local output = self:execute_command(args)
   if output then
     vim.notify("[mise-lspconfig] " .. tool_name .. " installed successfully")
     return true
@@ -121,7 +114,7 @@ function M:is_tool_installed(tool_name)
   end
   table.insert(args, "mason:" .. tool_name)
 
-  local tool_path = self:execute_command(self.cmd, args)
+  local tool_path = self:execute_command(args)
   if tool_path ~= nil then
     return true
   end
