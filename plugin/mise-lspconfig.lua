@@ -4,4 +4,4 @@ end
 vim.g.loaded_mise_lspconfig = true
 
 ---@class MLCModule
-local ml = require("mise-lspconfig")
+local mlc = require("mise-lspconfig")
