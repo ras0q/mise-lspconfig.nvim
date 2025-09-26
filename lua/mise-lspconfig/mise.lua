@@ -29,6 +29,9 @@ function M:execute_command(args)
   local full_args = vim.iter({ self.cmd, args }):flatten():totable()
   vim.notify(("[mise-lspconfig] Executing `%s`"):format(table.concat(full_args, " ")), "debug")
 
+  -- Allow UI updates before long-running command
+  vim.cmd("redraw")
+
   local result_tbl = nil
   local Job = require("plenary.job")
   local result, code = Job:new({

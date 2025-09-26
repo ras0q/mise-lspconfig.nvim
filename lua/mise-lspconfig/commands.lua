@@ -23,6 +23,7 @@ end
 function M:register_commands(mise_opts, lspconfig_opts)
   vim.api.nvim_create_user_command(self.install.name, function(opts)
     if is_installing then
+      vim.notify("[mise-lspconfig] Installation already in progress", "warn")
       return
     end
 
@@ -47,27 +48,31 @@ function M:register_commands(mise_opts, lspconfig_opts)
     is_installing = true
     vim.notify("[mise-lspconfig] Installing " .. tool .. "...", "info")
 
-    local ok = mise_opts:install_tool(tool)
-    is_installing = false
-    if not ok then
-      notify_error("Failed to install tool: " .. tool)
-      return
-    end
+    vim.schedule(function()
+      local ok = mise_opts:install_tool(tool)
+      is_installing = false
+      if not ok then
+        notify_error("Failed to install tool: " .. tool)
+        return
+      end
 
-    local bin_path = mise_opts:get_tool_path(tool)
-    if not bin_path then
-      notify_error("Failed to get the path of the installed tool: " .. tool)
-      return
-    end
+      local bin_path = mise_opts:get_tool_path(tool)
+      if not bin_path then
+        notify_error("Failed to get the path of the installed tool: " .. tool)
+        return
+      end
 
-    local dir = vim.fn.fnamemodify(bin_path, ":h")
+      local dir = vim.fn.fnamemodify(bin_path, ":h")
 
-    local current_path = vim.env.PATH or ""
-    if current_path == "" then
-      vim.env.PATH = dir
-    elseif not current_path:find(dir, 1, true) then
-      vim.env.PATH = dir .. ":" .. current_path
-    end
+      local current_path = vim.env.PATH or ""
+      if current_path == "" then
+        vim.env.PATH = dir
+      elseif not current_path:find(dir, 1, true) then
+        vim.env.PATH = dir .. ":" .. current_path
+      end
+
+      vim.notify("[mise-lspconfig] " .. tool .. " installed and added to PATH", "info")
+    end)
   end, {
     nargs = 1,
     complete = function(arg)
