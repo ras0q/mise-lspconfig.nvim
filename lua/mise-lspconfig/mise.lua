@@ -42,13 +42,14 @@ function M:execute_command(args)
   local result, code = Job:new({
     command = self.cmd,
     args = safe_args,
-    on_exit = function(j)
+    on_exit = function(j, return_val)
+      vim.notify(("[mise-lspconfig] Command exited with code %d"):format(return_val), "debug")
       result_tbl = j:result()
     end,
   }):sync()
 
   if result == nil or code ~= 0 then
-    -- vim.notify("[mise-lspconfig] mise command failed: " .. table.concat(full_args, ' '))
+    vim.notify("[mise-lspconfig] mise command failed: " .. table.concat(full_args, " "), "error")
     return nil
   end
 
@@ -117,6 +118,30 @@ function M:is_tool_installed(tool_name)
   end
 
   return false
+end
+
+--- Get the full path to a tool's binary using mise which (returns first line).
+--- @param tool_name string The tool's package name
+--- @return string|nil path The resolved binary path or nil if not found
+function M:get_path(tool_name)
+  local args = { "which" }
+  vim.list_extend(args, self.args.global)
+  vim.list_extend(args, self.args.which)
+  table.insert(args, "mason:" .. tool_name)
+
+  local tool_path = self:execute_command(args)
+  if not tool_path or tool_path == "" then
+    return nil
+  end
+
+  -- return the first non-empty line
+  for line in tool_path:gmatch("([^\n]+)") do
+    if line and line ~= "" then
+      return line
+    end
+  end
+
+  return nil
 end
 
 return M
