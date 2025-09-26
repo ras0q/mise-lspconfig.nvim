@@ -1,4 +1,4 @@
-local lspconfig = require("lspconfig")
+local lspconfig = vim.lsp.config
 
 ---@class MLCLspConfigModule
 ---@field server_mappings table Mapping of LSP server names to mise package names
@@ -13,14 +13,18 @@ local M = {
 --- @return string|nil cmd
 function M:get_required_cmd(lsp_name)
   local server = lspconfig[lsp_name]
-  if not (server and server.document_config and server.document_config.default_config) then
+  if not server or not server.cmd then
     return nil
   end
-  local cmd = server.document_config.default_config.cmd
-  if not cmd or not cmd[1] then
+  if type(server.cmd) == "function" then
+    vim.notify("[mise-lspconfig] server.cmd is a function (unsupported)", "warn")
     return nil
   end
-  return cmd[1]
+  if #server.cmd < 1 then
+    return nil
+  end
+
+  return server.cmd[1]
 end
 
 --- @class MLCServerInfo
@@ -32,15 +36,14 @@ end
 --- @return MLCServerInfo | nil
 function M:get_server_info(server_name)
   local server = lspconfig[server_name]
-  if server and server.document_config and server.document_config.default_config then
-    local default_config = server.document_config.default_config
-    return {
-      name = server_name,
-      cmd = default_config.cmd,
-    }
+  if not (server and server.cmd) then
+    return nil
   end
 
-  return nil
+  return {
+    name = server_name,
+    cmd = server.cmd,
+  }
 end
 
 return M
