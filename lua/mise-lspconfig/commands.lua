@@ -44,48 +44,48 @@ function M:register_commands(mise_opts, lspconfig_opts)
     -- TODO: convert to a correct tool name
     local tool = cmd
 
-    if mise_opts:is_tool_installed(tool) then
+    local tool_path = mise_opts:get_tool_path(tool)
+    if tool_path then
+      vim.notify("[mise-lspconfig] Tool " .. tool .. " is already installed", "warn")
       return
     end
 
-    vim.defer_fn(function()
-      vim.schedule(function()
-        is_installing = true
-      end)
-      vim.notify("[mise-lspconfig] Installing " .. tool .. "...", "info")
+    vim.schedule(function()
+      is_installing = true
+    end)
+    vim.notify("[mise-lspconfig] Installing " .. tool .. "...", "info")
 
-      local ok = mise_opts:install_tool(tool)
-      vim.schedule(function()
-        is_installing = false
-      end)
-      if not ok then
-        notify_error("Failed to install tool: " .. tool)
+    local ok = mise_opts:install_tool(tool)
+    vim.schedule(function()
+      is_installing = false
+    end)
+    if not ok then
+      notify_error("Failed to install tool: " .. tool)
+      return
+    end
+
+    local bin_path = mise_opts:get_tool_path(tool)
+    if not bin_path then
+      notify_error("Failed to get the path of the installed tool: " .. tool)
+      return
+    end
+
+    local dir = bin_path:match("^(.*/)")
+    if not dir or dir == "" then
+      notify_error("Failed to extract directory from path: " .. bin_path)
+      return
+    end
+
+    local current_path = vim.env.PATH or ""
+    vim.schedule(function()
+      if current_path == "" then
+        vim.env.PATH = dir
         return
       end
-
-      local bin_path = mise_opts:get_path(tool)
-      if not bin_path then
-        notify_error("Failed to get the path of the installed tool: " .. tool)
-        return
+      if not current_path:find(dir, 1, true) then
+        vim.env.PATH = dir .. ":" .. current_path
       end
-
-      local dir = bin_path:match("^(.*/)")
-      if not dir or dir == "" then
-        notify_error("Failed to extract directory from path: " .. bin_path)
-        return
-      end
-
-      local current_path = vim.env.PATH or ""
-      vim.schedule(function()
-        if current_path == "" then
-          vim.env.PATH = dir
-          return
-        end
-        if not current_path:find(dir, 1, true) then
-          vim.env.PATH = dir .. ":" .. current_path
-        end
-      end)
-    end, 60000)
+    end)
   end, {
     nargs = 1,
     complete = function(arg)

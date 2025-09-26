@@ -42,14 +42,13 @@ function M:execute_command(args)
   local result, code = Job:new({
     command = self.cmd,
     args = safe_args,
-    on_exit = function(j, return_val)
-      vim.notify(("[mise-lspconfig] Command exited with code %d"):format(return_val), "debug")
+    on_exit = function(j)
       result_tbl = j:result()
     end,
   }):sync()
 
   if result == nil or code ~= 0 then
-    vim.notify("[mise-lspconfig] mise command failed: " .. table.concat(full_args, " "), "error")
+    -- vim.notify("[mise-lspconfig] mise command failed: " .. table.concat(full_args, " "), "error")
     return nil
   end
 
@@ -98,36 +97,14 @@ function M:install_tool(tool_name)
   end
 end
 
---- Checks if a tool's binary is installed (either on $PATH or using mise's resolution).
---- @param tool_name string The tool's binary name
---- @return boolean installed
-function M:is_tool_installed(tool_name)
-  local args = { "which" }
-  vim.list_extend(args, self.args.global)
-  vim.list_extend(args, self.args.which)
-  table.insert(args, "mason:" .. tool_name)
-
-  local tool_path = self:execute_command(args)
-  if tool_path ~= nil then
-    return true
-  end
-
-  if vim.fn.executable(tool_name) == 1 then
-    vim.notify("[mise-lspconfig] Tool is installed, but not by mise.", "warn")
-    return true
-  end
-
-  return false
-end
-
 --- Get the full path to a tool's binary using mise which (returns first line).
 --- @param tool_name string The tool's package name
 --- @return string|nil path The resolved binary path or nil if not found
-function M:get_path(tool_name)
+function M:get_tool_path(tool_name)
   local args = { "which" }
-  vim.list_extend(args, self.args.global)
+  -- vim.list_extend(args, self.args.global)
   vim.list_extend(args, self.args.which)
-  table.insert(args, "mason:" .. tool_name)
+  table.insert(args, tool_name)
 
   local tool_path = self:execute_command(args)
   if not tool_path or tool_path == "" then
