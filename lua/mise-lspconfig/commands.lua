@@ -13,11 +13,8 @@ local M = {
 
 local is_installing = false
 
--- TODO: define globally
 local function notify_error(msg)
-  vim.schedule(function()
-    vim.notify("[mise-lspconfig] " .. msg, "error")
-  end)
+  vim.notify("[mise-lspconfig] " .. msg, "error")
 end
 
 -- Register Neovim commands
@@ -35,14 +32,11 @@ function M:register_commands(mise_opts, lspconfig_opts)
       return
     end
 
-    local cmd = lspconfig_opts:get_required_cmd(lsp_name)
-    if not cmd then
+    local tool = lspconfig_opts:get_required_cmd(lsp_name)
+    if not tool then
       notify_error("Cannot find any tools required by " .. lsp_name)
       return
     end
-
-    -- TODO: convert to a correct tool name
-    local tool = cmd
 
     local tool_path = mise_opts:get_tool_path(tool)
     if tool_path then
@@ -50,15 +44,11 @@ function M:register_commands(mise_opts, lspconfig_opts)
       return
     end
 
-    vim.schedule(function()
-      is_installing = true
-    end)
+    is_installing = true
     vim.notify("[mise-lspconfig] Installing " .. tool .. "...", "info")
 
     local ok = mise_opts:install_tool(tool)
-    vim.schedule(function()
-      is_installing = false
-    end)
+    is_installing = false
     if not ok then
       notify_error("Failed to install tool: " .. tool)
       return
@@ -70,22 +60,14 @@ function M:register_commands(mise_opts, lspconfig_opts)
       return
     end
 
-    local dir = bin_path:match("^(.*/)")
-    if not dir or dir == "" then
-      notify_error("Failed to extract directory from path: " .. bin_path)
-      return
-    end
+    local dir = vim.fn.fnamemodify(bin_path, ":h")
 
     local current_path = vim.env.PATH or ""
-    vim.schedule(function()
-      if current_path == "" then
-        vim.env.PATH = dir
-        return
-      end
-      if not current_path:find(dir, 1, true) then
-        vim.env.PATH = dir .. ":" .. current_path
-      end
-    end)
+    if current_path == "" then
+      vim.env.PATH = dir
+    elseif not current_path:find(dir, 1, true) then
+      vim.env.PATH = dir .. ":" .. current_path
+    end
   end, {
     nargs = 1,
     complete = function(arg)

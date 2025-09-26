@@ -1,7 +1,7 @@
 ---@class MLCModule
 local M = {}
 
--- Refer to the respective subdirectories for the default options.
+-- Configuration options for mise-lspconfig
 ---@class MLCOpts
 ---@field commands MLCCommandsModule
 ---@field mise MLCMiseModule

@@ -26,29 +26,20 @@ end
 --- @param args string[] list of arguments (excluding mise_cmd)
 --- @return string|nil output
 function M:execute_command(args)
-  local safe_args = {}
-  for _, arg in ipairs(args) do
-    -- Only accept string arg and escape embedded quotes
-    if type(arg) == "string" then
-      safe_args[#safe_args + 1] = arg:gsub('"', '\\"')
-    end
-  end
-
-  local full_args = vim.iter({ self.cmd, safe_args }):flatten():totable()
+  local full_args = vim.iter({ self.cmd, args }):flatten():totable()
   vim.notify(("[mise-lspconfig] Executing `%s`"):format(table.concat(full_args, " ")), "debug")
 
   local result_tbl = nil
   local Job = require("plenary.job")
   local result, code = Job:new({
     command = self.cmd,
-    args = safe_args,
+    args = args,
     on_exit = function(j)
       result_tbl = j:result()
     end,
   }):sync()
 
   if result == nil or code ~= 0 then
-    -- vim.notify("[mise-lspconfig] mise command failed: " .. table.concat(full_args, " "), "error")
     return nil
   end
 
@@ -102,23 +93,17 @@ end
 --- @return string|nil path The resolved binary path or nil if not found
 function M:get_tool_path(tool_name)
   local args = { "which" }
-  -- vim.list_extend(args, self.args.global)
   vim.list_extend(args, self.args.which)
   table.insert(args, tool_name)
 
   local tool_path = self:execute_command(args)
-  if not tool_path or tool_path == "" then
+  if not tool_path or tool_path:match("^%s*$") then
     return nil
   end
 
-  -- return the first non-empty line
-  for line in tool_path:gmatch("([^\n]+)") do
-    if line and line ~= "" then
-      return line
-    end
-  end
-
-  return nil
+  -- Return the first non-empty line, trimmed
+  local first_line = tool_path:match("([^\n]+)")
+  return first_line and first_line:match("^%s*(.-)%s*$")
 end
 
 return M
